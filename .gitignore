@@ -1,0 +1,75 @@
+# 환경 변수 파일
+.env
+**/.env
+
+# Python 관련
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 가상환경
+venv/
+ENV/
+env/
+
+# IDE 관련
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# 로그 파일
+*.log
+logs/
+
+# Docker 관련
+.docker/
+
+# 데이터베이스
+*.db
+*.sqlite3
+postgres_data/
+
+# 캐시 파일
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Railway 배포 관련
+railway.json
+.railway/
+
+# JWT 토큰 관련 파일들
+*.pem
+*.key
+
+# 기타 임시 파일
+tmp/
+temp/
+.tmp/
+.temp/ 
+
+review.md
+
+.cursorindexingignore
+
+/specstory/

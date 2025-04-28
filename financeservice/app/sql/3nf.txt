@@ -1,0 +1,121 @@
+좋습니다! `financials` 테이블을 **3정규형(3NF)**까지 정규화해드리겠습니다. 이 과정에서:
+
+- 중복을 제거하고,
+- 의미 단위별로 분리하며,
+- 모든 비이행적 함수 종속을 제거하겠습니다.
+
+---
+
+## ✅ 원본 테이블 분석 (요약)
+
+| 컬럼 분류 | 항목 |
+|-----------|------|
+| 회사 정보 | `corp_code`, `corp_name`, `stock_code` |
+| 보고서 정보 | `rcept_no`, `reprt_code`, `bsns_year` |
+| 재무제표 구분 | `sj_div`, `sj_nm` |
+| 계정 정보 | `account_nm`, `ord` |
+| 수치 | `thstrm_nm`, `thstrm_amount`, `frmtrm_nm`, `frmtrm_amount`, `bfefrmtrm_nm`, `bfefrmtrm_amount` |
+| 통화 | `currency` |
+| 분석 지표 | `debt_ratio`, `roe`, `eps_growth` 등 |
+| 공통 | `created_at`, `updated_at` |
+
+---
+
+## ✅ 정규화 결과 (3NF까지)
+
+### 1. `companies` (회사 정보)
+
+```sql
+CREATE TABLE companies (
+    corp_code VARCHAR(20) PRIMARY KEY,
+    corp_name VARCHAR(100) NOT NULL,
+    stock_code VARCHAR(20)
+);
+```
+
+---
+
+### 2. `reports` (보고서 메타 정보)
+
+```sql
+CREATE TABLE reports (
+    rcept_no VARCHAR(20) PRIMARY KEY,
+    corp_code VARCHAR(20) REFERENCES companies(corp_code),
+    reprt_code VARCHAR(20),
+    bsns_year VARCHAR(4) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+### 3. `statement_types` (재무제표 구분)
+
+```sql
+CREATE TABLE statement_types (
+    sj_div VARCHAR(10) PRIMARY KEY,       -- 예: 'BS', 'IS', 'CF'
+    sj_nm VARCHAR(100)                    -- 예: '재무상태표'
+);
+```
+
+---
+
+### 4. `accounts` (계정과목)
+
+```sql
+CREATE TABLE accounts (
+    account_id SERIAL PRIMARY KEY,
+    account_nm VARCHAR(100) NOT NULL,
+    ord INTEGER
+);
+```
+
+---
+
+### 5. `financials` (핵심 테이블, 수치 및 지표)
+
+```sql
+CREATE TABLE financials (
+    id SERIAL PRIMARY KEY,
+    rcept_no VARCHAR(20) REFERENCES reports(rcept_no),
+    sj_div VARCHAR(10) REFERENCES statement_types(sj_div),
+    account_id INTEGER REFERENCES accounts(account_id),
+    thstrm_nm VARCHAR(20),
+    thstrm_amount NUMERIC,
+    frmtrm_nm VARCHAR(20),
+    frmtrm_amount NUMERIC,
+    bfefrmtrm_nm VARCHAR(20),
+    bfefrmtrm_amount NUMERIC,
+    currency VARCHAR(10),
+    
+    -- 지표 항목들 (NULL 허용, 계산 대상만 삽입됨)
+    debt_ratio NUMERIC,
+    current_ratio NUMERIC,
+    interest_coverage_ratio NUMERIC,
+    operating_profit_ratio NUMERIC,
+    net_profit_ratio NUMERIC,
+    roe NUMERIC,
+    roa NUMERIC,
+    debt_dependency NUMERIC,
+    cash_flow_debt_ratio NUMERIC,
+    sales_growth NUMERIC,
+    operating_profit_growth NUMERIC,
+    eps_growth NUMERIC
+);
+```
+
+---
+
+## ✅ 관계 요약
+
+- `companies` ⬌ `reports` → 1:N  
+- `reports` ⬌ `financials` → 1:N  
+- `statement_types` ⬌ `financials` → 1:N  
+- `accounts` ⬌ `financials` → 1:N  
+
+즉, 핵심 테이블 `financials`는 나머지 모든 테이블의 자식 역할을 하며, 지표 및 재무제표 수치 중심으로 유지됩니다.
+
+---
+
+원하시면 이 구조를 기반으로 **ERD**, **시드 데이터 삽입 예제**, 혹은 **JOIN 쿼리 예시**도 도와드릴 수 있습니다.

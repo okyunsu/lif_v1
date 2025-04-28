@@ -1,0 +1,47 @@
+# 서비스 실행 관련
+docker-compose up --build        # 전체 서비스 빌드 후 실행
+docker-compose up -d            # 전체 서비스 백그라운드로 실행
+docker-compose down             # 전체 서비스 중지 및 컨테이너 제거
+docker-compose down --volumes   # 전체 서비스 중지 및 컨테이너, 볼륨 제거
+
+# 개별 서비스 관련
+docker-compose up -d gateway           # gateway 서비스만 백그라운드로 실행
+docker-compose up -d financeservice    # finance 서비스만 백그라운드로 실행
+docker-compose up -d esgservice        # esg 서비스만 백그라운드로 실행
+docker-compose up -d stockservice      # stock 서비스만 백그라운드로 실행
+
+# 로그 확인
+docker-compose logs --tail=500 -f gateway         # gateway 서비스 로그 확인
+docker-compose logs --tail=500 -f financeservice  # finance 서비스 로그 확인
+docker-compose logs --tail=500 -f esgservice      # esg 서비스 로그 확인
+docker-compose logs --tail=500 -f stockservice    # stock 서비스 로그 확인
+
+# 컨테이너 접속
+docker exec -it lif_api_server-gateway-1 bash         # gateway 컨테이너 접속
+docker exec -it lif_api_server-financeservice-1 bash  # finance 컨테이너 접속
+docker exec -it lif_api_server-esgservice-1 bash      # esg 컨테이너 접속
+docker exec -it lif_api_server-stockservice-1 bash    # stock 컨테이너 접속
+
+# PostgreSQL 접속
+docker exec -it api-server-postgres-1 psql -U postgres -d lifdb # PostgreSQL DB 접속
+
+# PostgreSQL 명령어
+# \l                    # 데이터베이스 목록 보기
+# \c database_name      # 데이터베이스 전환
+# \dt                   # 테이블 목록 보기
+# \d table_name         # 테이블 구조 보기
+# \q                    # PostgreSQL 종료
+
+# 환경변수 확인
+docker exec -it lif_api_server-gateway-1 env         # gateway 환경변수 확인
+docker exec -it lif_api_server-financeservice-1 env  # finance 환경변수 확인
+docker exec -it lif_api_server-esgservice-1 env      # esg 환경변수 확인
+docker exec -it lif_api_server-stockservice-1 env    # stock 환경변수 확인
+
+# 특정 서비스 재빌드
+docker-compose build --no-cache gateway         # gateway 서비스 캐시 없이 재빌드
+docker-compose build --no-cache financeservice  # finance 서비스 캐시 없이 재빌드
+docker-compose build --no-cache esgservice      # esg 서비스 캐시 없이 재빌드
+docker-compose build --no-cache stockservice    # stock 서비스 캐시 없이 재빌드
+
+psql -U postgres -d your_database_name
