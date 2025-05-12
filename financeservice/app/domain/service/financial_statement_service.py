@@ -13,7 +13,6 @@ from app.domain.repository.fin_repository import (
 )
 from app.domain.service.dart_api_service import DartApiService
 from app.domain.service.financial_data_processor import FinancialDataProcessor
-from app.domain.service.ratio_service import RatioService
 from app.domain.service.company_info_service import CompanyInfoService
 
 logger = logging.getLogger(__name__)
@@ -23,7 +22,6 @@ class FinancialStatementService:
         self.db_session = db_session
         self.dart_api = DartApiService()
         self.data_processor = FinancialDataProcessor()
-        self.ratio_service = RatioService(db_session)
         self.company_info_service = CompanyInfoService(db_session)
 
     async def get_financial_statements(self, company_info: CompanySchema, year: Optional[int] = None) -> List[Dict[str, Any]]:

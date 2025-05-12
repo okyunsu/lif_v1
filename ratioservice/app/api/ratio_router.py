@@ -1,20 +1,21 @@
 from fastapi import APIRouter, Request
 import logging
-from app.domain.controller.fin_controller import FinController
+from app.domain.controller.ratio_controller import RatioController
 from app.foundation.infra.database.database import get_db_session
 from app.domain.model.schema.schema import (
     CompanyNameRequest,
-    )
+    FinancialMetricsResponse,
+)
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # 로거 설정
-logger = logging.getLogger("fin_router")
+logger = logging.getLogger("ratio_router")
 logger.setLevel(logging.INFO)
 router = APIRouter()
 
 # GET
-@router.get("/financial", summary="모든 회사 목록 조회")
+@router.get("/ratio", summary="모든 회사 목록 조회")
 async def get_all_companies():
     """
     등록된 모든 회사의 목록을 조회합니다.
@@ -31,24 +32,25 @@ async def get_all_companies():
     return {"companies": companies}
 
 # POST
-@router.post("/financial", summary="회사명으로 재무제표 크롤링")
-async def get_financial_by_name(
+@router.post("/ratio", summary="회사명으로 재무비율 계산", response_model=FinancialMetricsResponse)
+async def calculate_financial_ratios(
     payload: CompanyNameRequest,
     db: AsyncSession = Depends(get_db_session)
 ):
     """
-    회사명으로 재무제표를 크롤링하고 저장합니다.
-    - DART API를 통해 재무제표 데이터를 가져옵니다.
-    - 가져온 데이터를 데이터베이스에 저장합니다.
-    - 크롤링 성공/실패 여부를 반환합니다.
+    회사명으로 재무비율을 계산합니다.
+    - 최근 3개년(당기, 전기, 전전기)의 재무제표 데이터를 기반으로 계산합니다.
+    - 재무지표: 영업이익률, 순이익률, ROE, ROA
+    - 성장성: 매출액 성장률, 순이익 성장률
+    - 안정성: 부채비율, 유동비율
     """
-    print(f"🕞🕞🕞🕞🕞🕞get_financial_by_name 호출 - 회사명: {payload.company_name}")
-    logger.info(f"🕞🕞🕞🕞🕞🕞get_financial_by_name 호출 - 회사명: {payload.company_name}")
-    controller = FinController(db)
-    return await controller.get_financial(company_name=payload.company_name)
+    print(f"📊 재무비율 계산 요청 - 회사명: {payload.company_name}")
+    logger.info(f"📊 재무비율 계산 요청 - 회사명: {payload.company_name}")
+    controller = RatioController(db)
+    return await controller.calculate_financial_ratios(company_name=payload.company_name)
 
 # PUT
-@router.put("/financial", summary="회사 정보 전체 수정")
+@router.put("/ratio", summary="회사 정보 전체 수정")
 async def update_company(request: Request):
     """
     회사 정보를 전체 수정합니다.
@@ -66,7 +68,7 @@ async def update_company(request: Request):
     }
 
 # DELETE
-@router.delete("/financial", summary="회사 정보 삭제")
+@router.delete("/ratio", summary="회사 정보 삭제")
 async def delete_company():
     """
     회사 정보를 삭제합니다.
@@ -80,7 +82,7 @@ async def delete_company():
     }
 
 # PATCH
-@router.patch("/financial", summary="회사 정보 부분 수정")
+@router.patch("/ratio", summary="회사 정보 부분 수정")
 async def patch_company(request: Request):
     """
     회사 정보를 부분적으로 수정합니다.

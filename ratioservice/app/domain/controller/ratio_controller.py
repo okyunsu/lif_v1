@@ -3,6 +3,7 @@ from app.domain.service.fin_service import FinService
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 from typing import Optional
+from app.domain.model.schema.schema import FinancialMetricsResponse
 
 # 로깅 설정
 logging.basicConfig(
@@ -11,43 +12,32 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-class FinController:
+class RatioController:
     def __init__(self, db_session: AsyncSession):
-        logger.info("FinController가 초기화되었습니다.")
+        logger.info("RatioController가 초기화되었습니다.")
         self.db_session = db_session
         self.service = FinService(db_session)
 
-    async def get_financial(
+    async def calculate_financial_ratios(
         self, 
         company_name: str = Query(..., description="회사명"),
         year: Optional[int] = Query(None, description="조회할 연도. 지정하지 않으면 직전 연도의 데이터를 조회")
-    ) -> dict:
-        """회사명으로 재무제표를 조회합니다.
+    ) -> FinancialMetricsResponse:
+        """회사명으로 재무비율을 계산합니다.
         
         Args:
             company_name: 회사명
             year: 조회할 연도. None이면 직전 연도의 데이터를 조회
         """
-        logger.info(f"재무제표 조회 요청 - 회사: {company_name}, 연도: {year}")
+        logger.info(f"재무비율 계산 요청 - 회사: {company_name}, 연도: {year}")
         try:
             # year 파라미터 정제
             actual_year = None
             if year and isinstance(year, int):
                 actual_year = year
             
-            # 재무제표 데이터 크롤링 및 저장
-            success = await self.service.crawl_and_save_financial_data(company_name, actual_year)
-            
-            if success:
-                return {
-                    "status": "success",
-                    "message": f"{company_name}의 재무제표 데이터가 성공적으로 저장되었습니다."
-                }
-            else:
-                return {
-                    "status": "error",
-                    "message": f"{company_name}의 재무제표 데이터 저장에 실패했습니다."
-                }
+            # 재무비율 계산
+            return await self.service.calculate_financial_ratios(company_name, actual_year)
             
         except ValueError as e:
             error_message = str(e)

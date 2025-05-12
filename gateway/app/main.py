@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from app.domain.model.request_model import FinanceRequest
 from app.domain.model.service_type import ServiceType
 
-# 로깅 설정
+# ✅로깅 설정
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -19,7 +19,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("gateway_api")
 
-# .env 파일 로드
+# ✅ .env 파일 로드
 load_dotenv()
 
 # ✅ 애플리케이션 시작 시 실행
@@ -47,7 +47,7 @@ app.add_middleware(
 )
 
 # ✅ 메인 라우터 생성
-gateway_router = APIRouter(prefix="/e/v1", tags=["Gateway API"])
+gateway_router = APIRouter(prefix="/e/v3", tags=["Gateway API"])
 
 # ✅ 헬스 체크 엔드포인트 추가
 @gateway_router.get("/health", summary="테스트 엔드포인트")
@@ -146,7 +146,7 @@ async def proxy_patch(service: ServiceType, path: str, request: Request):
     return JSONResponse(content=response.json(), status_code=response.status_code)
 
 # ✅ 라우터 등록
-app.include_router(gateway_router, tags=["Gateway API"])
+app.include_router(gateway_router)
 
 # ✅ 서버 실행
 if __name__ == "__main__":

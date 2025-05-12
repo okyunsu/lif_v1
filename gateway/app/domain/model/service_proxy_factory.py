@@ -20,6 +20,8 @@ class ServiceProxyFactory:
             path = "stock/stockservice"
         elif path == "esgservice":
             path = "esg/esgservice"
+        elif path == "ratio":
+            path = "ratio/ratio"
         url = f"{self.base_url}/{path}"
         print(f"🔍 Requesting URL: {url}")
         # 헤더 설정

@@ -15,6 +15,7 @@ docker-compose logs --tail=500 -f gateway         # gateway 서비스 로그 확
 docker-compose logs --tail=500 -f financeservice  # finance 서비스 로그 확인
 docker-compose logs --tail=500 -f esgservice      # esg 서비스 로그 확인
 docker-compose logs --tail=500 -f stockservice    # stock 서비스 로그 확인
+docker-compose logs --tail=500 -f ratioservice    # ratio 서비스 로그 확인
 
 # 컨테이너 접속
 docker exec -it lif_api_server-gateway-1 bash         # gateway 컨테이너 접속

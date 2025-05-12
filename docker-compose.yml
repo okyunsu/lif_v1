@@ -1,4 +1,3 @@
-
 services:
   gateway:
     build:
@@ -10,6 +9,7 @@ services:
       - ./gateway/.env
     environment:
       - FINANCE_SERVICE_URL=http://financeservice:8000
+      - RATIO_SERVICE_URL=http://ratioservice:8003
       - ESG_SERVICE_URL=http://esgservice:8002
       - STOCK_SERVICE_URL=http://stockservice:8001
       - GATEWAY_SERVICE_URL=http://gateway:8080
@@ -19,6 +19,7 @@ services:
       - lif-network
     depends_on:
       - financeservice
+      - ratioservice
       - esgservice
       - stockservice
     
@@ -35,6 +36,24 @@ services:
       - GATEWAY_SERVICE_URL=http://gateway:8080
     volumes:
       - ./financeservice:/app
+    networks:
+      - lif-network
+    depends_on:
+      - postgres
+
+  ratioservice:
+    build:
+      context: ./ratioservice
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./ratioservice/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/lifdb
+      - GATEWAY_SERVICE_URL=http://gateway:8080
+    volumes:
+      - ./ratioservice:/app
     networks:
       - lif-network
     depends_on:
